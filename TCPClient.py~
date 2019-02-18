@@ -1,0 +1,76 @@
+from socket import *
+import threading
+import time
+from random import *
+from math import floor
+
+#alpha = 0.1
+#sendingTime = 0.0
+N = 1400
+NMutex = threading.Lock()
+n = 0.1
+packetsOut = 0
+
+class SendData(threading.Thread):
+    def __init__(self, data):
+        self.data = data
+        threading.Thread.__init__(self)
+        self.start()
+        
+    def run(self):
+        global packetsOut        
+        clientSocket.send(self.data)
+
+        packetsOut += 1
+
+
+class ReceiveIarrTime(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.start()
+        
+    def run(self):
+        global N
+        global packetsOut
+        while(1):
+            message = clientSocket.recv(1024).decode()
+
+            # decrement the packets that are out
+            packetsOut -= 1
+            print("Interarrival time is: ",message,'\n------\n')
+            iarrTime = float(message)
+            
+            if iarrTime <= 0:
+                N = 1400
+            else:
+                N = floor(min(1400*1,1400*(0.001/iarrTime - packetsOut)))
+            print("Max N is: %i"%N)
+        
+
+#********
+# main:
+
+serverName = '127.0.0.1'
+serverPort = 12002
+clientSocket = socket(AF_INET, SOCK_STREAM)
+
+clientSocket.connect((serverName, serverPort))
+ReceiveIarrTime()
+
+with open("Measurement1.txt", "r") as myfile:
+    for line in myfile:
+        #sendingTime = time.time()
+        #data = str(line[:-1]) + "," + "%.9f" % n
+
+        a = []
+        for i in range(N): a += str(randint(0,9))
+        data = ''.join(a)
+        
+        
+        SendData(data.encode())
+        
+        time.sleep(n) # to simulate sending data to the monitoring center every n seconds
+        
+        #print('this is the time: ', float(time.time()), '\n')
+
+clientSocket.close()
