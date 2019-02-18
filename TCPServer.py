@@ -20,7 +20,7 @@ class SendResponse(Thread):
         try:
             grace = float(self.message.split(',')[1])
             print("grace is %f"%grace)
-            connectionSocket.send(("%.9f"%self.getTime()).encode())
+            connectionSocket.send(("%.9f "%self.getTime()).encode())
         except Exception as e:
             print(str(e))
         
@@ -48,7 +48,7 @@ class SendResponse(Thread):
 #*******
 # main:
 
-serverPort = 12002
+serverPort = 12001
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind(('', serverPort))
 serverSocket.listen(1)

@@ -6,9 +6,11 @@ from math import floor
 
 #alpha = 0.1
 #sendingTime = 0.0
-N = 1400
+
+MTU = 1400
+N = MTU
 NMutex = Lock()
-n = 0.5
+n = 0.001
 packetsOut = 0
 
 class GetN(Thread):
@@ -19,19 +21,23 @@ class GetN(Thread):
 
     def run(self):
         global N
+        global MTU
         global packetsOut
-        
-        # decrement the packets that are out since we just received the response
-        packetsOut -= 1
-        print("Interarrival time is: ",self.message,'\n------\n')
-        iarrTime = float(self.message)
-        
-        if iarrTime <= 0:
-            N = 1400
-        else:
-            N = floor(min(1400*3,1400*(0.009/iarrTime - packetsOut)))
-        print("Max N is: %i"%N)
-        
+
+        for chunk in self.message.split():
+            print ("*****",chunk)
+            # decrement the packets that are out since we just received the response
+            packetsOut -= 1
+            #print("Interarrival time is: ",self.message,'\n------\n')
+            iarrTime = float(chunk)
+            
+            if iarrTime <= 0:
+                N = MTU
+            else:
+                N = floor(min(MTU*3,MTU*(0.003/iarrTime - packetsOut)))
+            print("Max N is: %i and packets out is %i"%(N,packetsOut))
+
+            
 class SendData(Thread):
     def __init__(self, data, N):
         self.data = data
@@ -41,21 +47,22 @@ class SendData(Thread):
         
     def run(self):
         global packetsOut        
-        grace = 0.5
+        grace = n
         
         while self.N > 0:
-            if self.N <= 1400:
+            if self.N <= MTU:
                 clientSocket.send((self.data+",%f"%grace).encode())
                 packetsOut += 1
-                print("sending last packet")
+                #print("sending last packet")
                 break
             else:
-                clientSocket.send((self.data[:1400]+",%f"%grace).encode())
-                self.N -= 1400
-                self.data = self.data[1400:]
-                print("snding intermediate packet")
+                clientSocket.send((self.data[:MTU]+",%f"%grace).encode())
+                self.N -= MTU
+                self.data = self.data[MTU:]
+                #print("snding intermediate packet")
                 packetsOut += 1
-                grace = 0.0
+                grace = n/5
+                time.sleep(n/5)
         
 class ReceiveIarrTime(Thread):
     def __init__(self):
@@ -72,7 +79,7 @@ class ReceiveIarrTime(Thread):
 # main:
 
 serverName = '127.0.0.1'
-serverPort = 12002
+serverPort = 12001
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
 try:
