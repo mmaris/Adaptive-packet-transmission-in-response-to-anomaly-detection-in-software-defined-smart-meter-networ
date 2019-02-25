@@ -3,7 +3,7 @@ import time
 from threading import *
 
 alpha = 0.1
-grace = 0.5
+grace = 1
 previousTime = 0.0
 iarrTime = -1.0
 
