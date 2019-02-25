@@ -2,6 +2,8 @@ from socket import *
 import time
 from threading import *
 
+resultsFile = open("ServerDynamicData.txt", "w")
+
 alpha = 0.1
 grace = 1
 previousTime = 0.0
@@ -23,15 +25,16 @@ class SendResponse(Thread):
             connectionSocket.send(("%.9f "%self.getTime()).encode())
         except Exception as e:
             print(str(e))
-        
+
 
     def getTime(self):
+        global resultsFile
         global iarrTime
         global alpha
         global grace
         global previousTime
         
-        print("current is: %.9f , and previous is: %.9f"% (self.currentTime, previousTime))
+        #print("current is: %.9f , and previous is: %.9f"% (self.currentTime, previousTime))
 
         if iarrTime > 0: 
             iarrTime = alpha * (self.currentTime - previousTime - grace) + (1-alpha) * iarrTime
@@ -40,7 +43,7 @@ class SendResponse(Thread):
         else:
             iarrTime = 0
 
-        print(iarrTime)
+        resultsFile.write("%f.9\n"%iarrTime)
         previousTime = currentTime
         return iarrTime
 

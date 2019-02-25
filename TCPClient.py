@@ -7,7 +7,7 @@ from math import floor
 #alpha = 0.1
 #sendingTime = 0.0
 
-#resultsFile = open(ClientData)        
+#resultsFile = open("ClientDynamicData.txt", "w")        
 
 MTU = 1400
 N = MTU
@@ -32,7 +32,7 @@ class GetN(Thread):
         global packetsOut
 
         for chunk in self.message.split():
-            print ("*****",chunk)
+            print ("Interarrival  time received is: ",chunk)
             # decrement the packets that are out since we just received the response
             packetsOut -= 1
             #print("Interarrival time is: ",self.message,'\n------\n')
@@ -41,8 +41,8 @@ class GetN(Thread):
             if iarrTime <= 0:
                 N = MTU
             else:
-                N = floor(min(MTU*3,MTU*(0.0007/iarrTime - packetsOut)))
-            print("Max N is: %i and packets out is %i"%(N,packetsOut))
+                N = floor(min(MTU*3,MTU*(0.001/iarrTime - packetsOut)))
+            print("Max N calculated is: %i and packets out is %i"%(N,packetsOut))
 
             
 class SendData():
