@@ -21,7 +21,8 @@ class SendResponse(Thread):
         #send back the interarrivl time
         try:
             grace = float(self.message.split(',')[1])
-            print("grace is %f"%grace)
+            packNum = int(self.message.split(',')[2])
+            print("grace is %f and %i"%(grace,packNum))
             connectionSocket.send(("%.9f "%self.getTime()).encode())
         except Exception as e:
             print(str(e))
