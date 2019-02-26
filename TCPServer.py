@@ -23,7 +23,7 @@ class SendResponse(Thread):
             grace = float(self.message.split(',')[1])
             packNum = int(self.message.split(',')[2])
             print("grace is %f and %i"%(grace,packNum))
-            connectionSocket.send(("%.9f "%self.getTime()).encode())
+            connectionSocket.send(("%.9f,%i "%(self.getTime(),packNum)).encode())
         except Exception as e:
             print(str(e))
 
@@ -34,10 +34,9 @@ class SendResponse(Thread):
         global alpha
         global grace
         global previousTime
-        
         #print("current is: %.9f , and previous is: %.9f"% (self.currentTime, previousTime))
 
-        if iarrTime > 0: 
+        if iarrTime > 0:
             iarrTime = alpha * (self.currentTime - previousTime - grace) + (1-alpha) * iarrTime
         elif iarrTime == 0:
             iarrTime = self.currentTime - previousTime - grace
@@ -69,7 +68,6 @@ try:
             if message == '':
                 print('Empty message received. Closing socket.')
                 break
-
             #print("received: %s" % message)
 
             # make this a thread

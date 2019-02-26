@@ -37,7 +37,10 @@ class GetN(Thread):
             # decrement the packets that are out since we just received the response
             packetsOut -= 1
             #print("Interarrival time is: ",self.message,'\n------\n')
-            iarrTime = float(chunk)
+            iarrTime = float(chunk.split(',')[0])
+            packNum = int(chunk.split(',')[1])
+
+            print("Received Ack from packet %i"%packNum)
             
             if iarrTime <= 0:
                 N = MTU
@@ -97,7 +100,6 @@ serverPort = 12001
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
 try:
-    
     clientSocket.connect((serverName, serverPort))
     ReceiveIarrTime()
     sleepTime = 0;
@@ -109,12 +111,10 @@ try:
         
         SendData(data[:N], sleepTime)
         
-        finish = time.time()
-        
+        finish = time.time()        
         sleepTime = n-(finish - start)
-        
         # to simulate sending data to the monitoring center every n seconds
-        time.sleep(sleepTime) 
+        time.sleep(sleepTime)
 
 except Exception as e:
     print(e)
